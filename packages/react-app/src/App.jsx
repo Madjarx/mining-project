@@ -17,7 +17,7 @@ import {
   Contract,
   Faucet,
   GasGauge,
-  //Header,
+  Header,
   Ramp,
   ThemeSwitch,
   NetworkDisplay,
@@ -33,7 +33,7 @@ import { Home, ExampleUI, Hints, Subgraph } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 // elements imports
 import {
-  Header,
+  Navbar,
   Stake,
   Statistics,
   Referral,
@@ -255,7 +255,7 @@ function App(props) {
 
   return (
     <div className="App">
-      <Header />
+      <Navbar />
       <Stake />
       <Statistics />
       <Referral />
@@ -357,7 +357,7 @@ function App(props) {
       
 
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-      {/* <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
+      <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
         <div style={{ display: "flex", flex: 1, alignItems: "center" }}>
           {USE_NETWORK_SELECTOR && (
             <div style={{ marginRight: 20 }}>
@@ -384,7 +384,7 @@ function App(props) {
         {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
           <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
         )}
-      </div> */}
+      </div>
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
       {/* <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
