@@ -1,28 +1,30 @@
+// imports - react
 import React from "react";
+// imports - antd
+import { Input, Divider, Empty, Card, Statistic, Row, Col, Button } from "antd";
+// imports - styles js
 import styles from "../styles";
 
 export default function Statistics() {
   return (
     <div style={styles.box}>
-      <div style={styles.layout}>
-        <div style={styles.title}>
-          <h5>Title</h5>
+      <Card title="Statistics" bordered={false}>
+        <div style={styles.layout}>
+          <div style={{marginTop: -20}}>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Statistic title="Daily Return" value={`2%`} />
+            </Col>
+            <Col span={8}>
+              <Statistic title="APR" value={`2630%`} precision={2} />
+            </Col>
+            <Col span={8}>
+              <Statistic title="Dev Fee" value={`5%`} />
+            </Col>
+          </Row>
+          </div>         
         </div>
-        <div style={styles.container}>
-          <div style={styles.info}>
-            <p>Daily return</p>
-            <h1>0</h1>
-          </div>
-          <div style={styles.info}>
-            <p>APR</p>
-            <h1>0</h1>
-          </div>
-          <div style={styles.info}>
-            <p>dev fee</p>
-            <h1>0</h1>
-          </div>
-        </div>
-      </div>
+      </Card>
     </div>
   );
 }

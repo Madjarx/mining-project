@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from '../styles';
+import { Input } from 'antd';
 
 export default function Referral () {
 
@@ -10,7 +11,7 @@ export default function Referral () {
                 <div style={styles.title}>
                     Referral Link
                 </div>
-                <input type="text" style={styles.input}/>
+                <Input style={styles.input} placeholder="Refer a miner"/>
                 <div style={styles.paragraph}>
                     <p>Lorem ipsum dolor sit amet, consectetur adipiscing el</p>
                 </div>

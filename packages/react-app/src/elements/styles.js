@@ -1,7 +1,7 @@
 const styles = {
     box : {
-        border: '1px solid',
-        borderRadius: '30px',
+        border: 'none',
+        // borderRadius: '30px',
         maxWidth: '400px',
         width: '400px',
         display: 'flex',
@@ -12,7 +12,7 @@ const styles = {
     layout : {
         display: 'flex',
         flexDirection: 'column',
-        padding: '10spx',
+        padding: '30px',
     },
     info : {
         display: 'flex',
@@ -26,11 +26,14 @@ const styles = {
         alignItems: 'center',
     },
     input : {
+        margin: '10px',
         width: '100%',
+        boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
+        border: 'none'
     },
     button : {
-        width: '100%',
-        marginBottom: '15px',
+        margin: '10px',
+        boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
     },
     divider : {
         width: '100%',
@@ -68,6 +71,12 @@ const styles = {
     header : {
         display: 'flex',
         flexDirection: 'column',
+    },
+    funds : {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 }
 
