@@ -37,6 +37,8 @@ const styles = {
     },
     divider : {
         width: '100%',
+        margin: '0',
+        color: '#6e6e6e',
         borderTop: '1px solid',
     },
     title : {
@@ -77,7 +79,8 @@ const styles = {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-    }
+    },
+
 }
 
 export default styles;

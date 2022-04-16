@@ -1,21 +1,49 @@
-import React from 'react';
-import styles from '../styles';
-import { Input } from 'antd';
+// imports - react
+import React from "react";
+// imports - styles
+import styles from "../styles";
+// imports - antd
+import { Input, Card, Space } from "antd";
+import { CopyOutlined, LineChartOutlined } from "@ant-design/icons";
 
-export default function Referral () {
+const { Search } = Input;
+const onSearch = value => console.log(value);
 
+const suffix = (
+  <LineChartOutlined
+    // <DollarCircleOutlined
+    // <AudioOutlined
+    style={{
+      fontSize: 16,
+      color: "#1890ff",
+    }}
+  />
+);
 
-    return (
-        <div style={styles.box}>
-            <div style={styles.layout}>
-                <div style={styles.title}>
-                    Referral Link
-                </div>
-                <Input style={styles.input} placeholder="Refer a miner"/>
-                <div style={styles.paragraph}>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing el</p>
-                </div>
-            </div>
+const nativeCurrency = "AVAX";
+
+export default function Referral() {
+  const httpsURL = "https://www.google.com";
+
+  return (
+    <div style={styles.box}>
+      <Card title="Referral Link">
+        <div style={styles.layout}>
+          <Space direction="vertical">
+            <Search
+              placeholder={`${httpsURL}/?referral=YOUR ETH ADDRESS HERE`}
+              enterButton={<CopyOutlined />}
+              size="large"
+              style={styles.input}
+              onSearch={onSearch}
+            />
+          </Space>
+
+          <div style={styles.paragraph}>
+            <p>You earn 12% of whatever they earn</p>
+          </div>
         </div>
-    )
+      </Card>
+    </div>
+  );
 }

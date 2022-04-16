@@ -255,6 +255,7 @@ function App(props) {
 
   return (
     <div className="App">
+      <Header />
       <Navbar />
       <Stake />
       <Statistics />
