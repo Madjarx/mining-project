@@ -1,7 +1,6 @@
 const styles = {
     box : {
         border: 'none',
-        // borderRadius: '30px',
         maxWidth: '400px',
         width: '400px',
         display: 'flex',
@@ -12,7 +11,7 @@ const styles = {
     layout : {
         display: 'flex',
         flexDirection: 'column',
-        padding: '30px',
+        padding: '10px',
     },
     info : {
         display: 'flex',
@@ -39,7 +38,6 @@ const styles = {
         width: '100%',
         margin: '0',
         color: '#6e6e6e',
-        borderTop: '1px solid',
     },
     title : {
         width: '100%',
@@ -80,6 +78,12 @@ const styles = {
         alignItems: 'center',
         justifyContent: 'center',
     },
+    steps : {
+        padding: '20px',
+    },
+    step : {
+        padding: '10px',
+    }
 
 }
 

@@ -79,11 +79,10 @@ export default function Account({
           style={{ verticalAlign: "top", marginLeft: 8, marginTop: 4 }}
           shape="round"
           size="large"
-          /* type={minimized ? "default" : "primary"}     too many people just defaulting to MM and having a bad time */
           onClick={loadWeb3Modal}
         >
           connect
-        </Button>,
+        </Button>
       );
     }
   }
@@ -94,15 +93,15 @@ export default function Account({
       {web3Modal && web3Modal.cachedProvider ? (
         <>
           {address && <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />}
-          <Balance address={address} provider={localProvider} price={price} />
-          <Wallet
+          <Balance address={address} provider={localProvider} price={price}/>
+          {/* <Wallet
             address={address}
             provider={localProvider}
             signer={userSigner}
             ensProvider={mainnetProvider}
             price={price}
             color={currentTheme === "light" ? "#1890ff" : "#2caad9"}
-          />
+          /> */}
         </>
       ) : useBurner ? (
         ""
