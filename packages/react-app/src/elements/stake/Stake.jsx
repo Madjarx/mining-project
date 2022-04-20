@@ -20,7 +20,8 @@ import {useBalance } from "eth-hooks";
 
 const { Step } = Steps;
 
- // TODO: integrate into wallet
+// TODO: Add processing buttons and shit
+// TODO: integrate into wallet
 const amountWithinContract = "120201.45";
 const amountOfRedeemableRewards = 0.3;
 const { Search } = Input;
@@ -77,14 +78,16 @@ export default function Stake({
   const [amountWithinContract, setAmountWithinContract] = useState(0);
   const [amountWithinDeposits, setAmountWithinDeposits] = useState(0);
   const [amountWithinRewards, setAmountWithinRewards] = useState(0);
-  
-  const balanceOfRewards = ethers.BigNumber.from('0')
-  const balanceOfWallet = useBalance(localProvider, address)
-  const balanceOfDeposits = ethers.BigNumber.from('0')
+
+  const balanceOfRewards = ethers.BigNumber.from('0');
+  const balanceOfWallet = useBalance(localProvider, address);
+  const balanceOfDeposits = ethers.BigNumber.from('0');
 
 
-  const nativeCurrency = targetNetwork.nativeCurrency || "EsTH";
-  // debugger
+  const nativeCurrency = targetNetwork.nativeCurrency || "ETH";
+  const [inputValue, setInpuValue] = useState(null)
+
+
   // TODO: put this somewhere global so we have "one definition" for "humanized"
   const humanizedBalance = (balance) => parseFloat(ethers.utils.formatEther(balance)).toFixed(3)
 
@@ -92,10 +95,14 @@ export default function Stake({
       setCurrentStep(currentStep + 1);
   };
 
+  const onClickUrl = () => {
+    return window.open(`https://www.sushi.com/`)
+  }
+
   // UseEffect for balance within wallet
   useEffect(() => setAmountWithinWallet(humanizedBalance(balanceOfWallet)), [balanceOfWallet])
   
-  // UseEffect for balance within wallet
+  // UseEffect for balance of deposits
   useEffect(() => setAmountWithinDeposits(humanizedBalance(balanceOfDeposits)), [balanceOfDeposits])
 
   // TODO: rewards should always be 2% of generators
@@ -103,7 +110,10 @@ export default function Stake({
   // TODO: prevent the user from entering an invalid # (some sort of error display)
   
   //this useeffect should calculate the rewards by multiplaying with 1.02
-  useEffect(() => {})
+  useEffect(() => {
+    setAmountWithinRewards(amountWithinDeposits * 1.02);
+  }, [amountWithinDeposits])
+
   //*****/
   // Tell user what the next expected action is.
   //*****/
@@ -116,8 +126,6 @@ export default function Stake({
     // } else if (amountWithinWallet) {   // TODO: this is the wrong equivalence (we need *.lte(*) BigNumber)
     } else if (balanceOfWallet && balanceOfWallet.lte(ZERO)) {   // TODO: this is the wrong equivalence (we need *.lte(*) BigNumber)
       // if they don't have funds, then they need some
-      // console.log(amountWithinWallet)
-      // debugger
       setCurrentStep(1)
     } else if (balanceOfDeposits && balanceOfDeposits.lte(ZERO)) {
       // if they don't have deposits, then they need some
@@ -127,33 +135,6 @@ export default function Stake({
       setCurrentStep(3)
     }
   }, [address, balanceOfWallet, balanceOfDeposits]);
-
-  // const modalButtons = [];
-  // if (web3Modal) {
-  //   if (web3Modal.cachedProvider) {
-  //     modalButtons.push(
-  //       <Button
-  //         key="logoutbutton"
-  //         size="large"
-  //         type="primary"
-  //         onClick={logoutOfWeb3Modal}
-  //       >
-  //         logout
-  //       </Button>,
-  //     );
-  //   } else {
-  //     modalButtons.push(
-  //       <Button
-  //         key="loginbutton"
-  //         size="large"
-  //         type="primary"
-  //         onClick={loadWeb3Modal}
-  //       >
-  //         Connect Wallet
-  //       </Button>
-  //     );
-  //   };
-  // };
 
 
   return (
@@ -172,7 +153,7 @@ export default function Stake({
     <div style={styles.box}>
       <Card title="Fortuna Wealth Generator" bordered={false}>
         <div style={styles.layout}>
-          <Row gutter={16}>
+          <Row gutter={16} style={{marginTop: -15}}>
             <Col span={12}>
               {/* TODO: make "Contract" a href to the etherscan url  */}
               <Statistic title="Contract Balance" value={amountWithinContract} />
@@ -182,7 +163,7 @@ export default function Stake({
               <Statistic title="Wallet Balance" value={`${amountWithinWallet} ${nativeCurrency}`} precision={2} />
 
               {web3Modal.cachedProvider ? (
-                <Button style={{ marginTop: 16 }} type="primary">
+                <Button style={{ marginTop: 16 }} type="primary" onClick={onClickUrl}>
                   Recharge
                 </Button>
               ) : (
@@ -205,8 +186,9 @@ export default function Stake({
           <div style={styles.group}>
             <Space direction="vertical">
 
-              <Statistic title="Your Generators" value={'0'} prefix={<ThunderboltOutlined />} style={styles.layout}/>
+              <Statistic title="Your Generators" value={amountWithinDeposits} prefix={<ThunderboltOutlined />} style={styles.layout}/>
 
+              {/* status property can show errors and become red if input is invalid */}
               <Search
                 placeholder={`amount of ${nativeCurrency}`}
                 enterButton="Hire"
@@ -214,6 +196,10 @@ export default function Stake({
                 suffix={suffix}
                 onSearch={stepForward}
                 style={{marginTop: 10 }}
+                value={inputValue}
+                onClick={()=>{
+                  setInpuValue(amountWithinWallet)
+                }}
               />
             </Space>
 
@@ -225,7 +211,7 @@ export default function Stake({
               <Progress
                 type="circle"
                 percent={75}
-                format={() => `${amountOfRedeemableRewards}`}
+                format={() => `${amountWithinRewards}`} //${nativeCurrency}
                 style={{ marginBottom: 10 }}
               />
             ) : (
@@ -237,7 +223,7 @@ export default function Stake({
                 <DownloadOutlined />
                 REINVEST
               </Dropdown.Button>
-            </div> : () =>{}}
+            </div> : ""}
             
           </div>
         </div>

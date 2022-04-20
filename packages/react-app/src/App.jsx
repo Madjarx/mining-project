@@ -270,7 +270,10 @@ function App(props) {
         targetNetwork={targetNetwork}
       />
       <Statistics />
-      <Referral />
+      <Referral 
+        address={address}
+        web3Modal={web3Modal}
+      />
       <Links />
 
       <ThemeSwitch />

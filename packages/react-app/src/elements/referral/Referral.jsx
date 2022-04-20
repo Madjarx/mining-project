@@ -3,16 +3,15 @@ import React from "react";
 // imports - styles
 import styles from "../styles";
 // imports - antd
-import { Input, Card, Space } from "antd";
+import { Input, Card, Space, Typography } from "antd";
 import { CopyOutlined, LineChartOutlined } from "@ant-design/icons";
 
+const { Text } = Typography;
 const { Search } = Input;
 const onSearch = value => console.log(value);
 
 const suffix = (
   <LineChartOutlined
-    // <DollarCircleOutlined
-    // <AudioOutlined
     style={{
       fontSize: 16,
       color: "#1890ff",
@@ -20,10 +19,23 @@ const suffix = (
   />
 );
 
-const nativeCurrency = "AVAX";
+// TODO: napravi da moze da se kopira jebena adresa walleta na click, znaci value se preffiluje ako si ulogovan
+// Egnlish translation: Make the referral box prefilled with the address if the user is logged in, so thats the value prop of the search, and make it copyable on button click
 
-export default function Referral() {
-  const httpsURL = "https://www.google.com";
+export default function Referral(  web3Modal, address,) {
+
+  // let displayAddress = address?.substr(0, 5) + "..." + address?.substr(-4);
+  const walletAddress = () => {
+    return (
+      <Text copyable={{ text: address }}>
+        {address}
+      </Text>
+    );
+  };
+  
+
+
+  const httpsURL = "https://www.wealthgenerator.com";
 
   return (
     <div style={styles.box}>
@@ -31,16 +43,24 @@ export default function Referral() {
         <div style={styles.layout}>
           <Space direction="vertical">
             <Search
-              placeholder={`${httpsURL}/?referral=YOUR ETH ADDRESS HERE`}
+              // placeholder={`${httpsURL}/?referral=YOUR ETH ADDRESS HERE`}
+              placeholder={
+                web3Modal.cachedProvider? 
+                `${httpsURL}/?ref=${address}`
+                :
+                `${httpsURL}/?ref=`
+              }
               enterButton={<CopyOutlined />}
               size="large"
               style={styles.input}
               onSearch={onSearch}
+              // value={walletAddress}
             />
           </Space>
 
           <div style={styles.paragraph}>
-            <p>You earn 12% of whatever they earn</p>
+            <p>Earn 12% of the AVAX used to mine ruby
+            from anyone who uses your referral link</p>
           </div>
         </div>
       </Card>

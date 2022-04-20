@@ -60,7 +60,11 @@ const styles = {
         maxWidth: '400px',
         width: '100%',
         justifyContent: 'space-between',
-        marginTop: '20px',
+        marginTop: '50px',
+    },
+    link : {
+        width: "144px",
+        height: "100px",
     },
     btn_group : {
         display: 'flex',
