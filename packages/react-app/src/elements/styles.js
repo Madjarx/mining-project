@@ -73,8 +73,18 @@ const styles = {
         justifyContent: 'space-between',
     },
     header : {
+        width: "100%",
+        height: "100px",
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        backgroundColor: 'white',
+        transparent: false,
+        boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
+    },
+    headerBackground : {
+        
     },
     funds : {
         display: 'flex',
@@ -83,12 +93,11 @@ const styles = {
         justifyContent: 'center',
     },
     steps : {
-        padding: '20px',
+        marginTop: '20px',
     },
     step : {
         padding: '10px',
-    }
-
+    },
 }
 
 export default styles;

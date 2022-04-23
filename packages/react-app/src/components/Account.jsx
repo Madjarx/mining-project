@@ -1,10 +1,12 @@
-import { Button } from "antd";
+import { Button, PageHeader } from "antd";
 import React from "react";
 import { useThemeSwitcher } from "react-css-theme-switcher";
 
 import Address from "./Address";
 import Balance from "./Balance";
 import Wallet from "./Wallet";
+
+import styles from "../elements/styles";
 
 /** 
   ~ What it does? ~
@@ -82,7 +84,7 @@ export default function Account({
           onClick={loadWeb3Modal}
         >
           connect
-        </Button>
+        </Button>,
       );
     }
   }
@@ -93,7 +95,7 @@ export default function Account({
       {web3Modal && web3Modal.cachedProvider ? (
         <>
           {address && <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />}
-          <Balance address={address} provider={localProvider} price={price}/>
+          <Balance address={address} provider={localProvider} price={price} />
           {/* <Wallet
             address={address}
             provider={localProvider}
@@ -133,9 +135,9 @@ export default function Account({
   );
 
   return (
-    <div>
+    <div style={styles.header}>
       {display}
-      {modalButtons}
+      <div style={{ marginRight: "20px" }}>{modalButtons}</div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 // imports - react
-import React from "react";
+import React, { useEffect, useState } from "react";
 // imports - styles
 import styles from "../styles";
 // imports - antd
@@ -19,48 +19,60 @@ const suffix = (
   />
 );
 
-// TODO: napravi da moze da se kopira jebena adresa walleta na click, znaci value se preffiluje ako si ulogovan
-// Egnlish translation: Make the referral box prefilled with the address if the user is logged in, so thats the value prop of the search, and make it copyable on button click
-
-export default function Referral(  web3Modal, address,) {
-
+export default function Referral(
+  web3Modal,
+  useBurner,
+  address,
+  userSigner,
+  localProvider,
+  mainnetProvider,
+  price,
+  minimized,
+  loadWeb3Modal,
+  logoutOfWeb3Modal,
+  blockExplorer,
+  isContract,
+  targetNetwork,
+) {
   // let displayAddress = address?.substr(0, 5) + "..." + address?.substr(-4);
   const walletAddress = () => {
-    return (
-      <Text copyable={{ text: address }}>
-        {address}
-      </Text>
-    );
+    return <Text copyable={{ text: address }}>{address}</Text>;
   };
-  
-
-
   const httpsURL = "https://www.wealthgenerator.com";
+  const [refLink, setRefLink] = useState("");
+
+  function generateRefLink() {
+    setRefLink(`${httpsURL}/?referral=${address}`);
+  }
 
   return (
     <div style={styles.box}>
       <Card title="Referral Link">
         <div style={styles.layout}>
           <Space direction="vertical">
-            <Search
-              // placeholder={`${httpsURL}/?referral=YOUR ETH ADDRESS HERE`}
-              placeholder={
-                web3Modal.cachedProvider? 
-                `${httpsURL}/?ref=${address}`
-                :
-                `${httpsURL}/?ref=`
-              }
-              enterButton={<CopyOutlined />}
-              size="large"
-              style={styles.input}
-              onSearch={onSearch}
-              // value={walletAddress}
-            />
+            {web3Modal.cachedProvider ? (
+              <Search
+                // placeholder={`${httpsURL}/?referral=YOUR ETH ADDRESS HERE`}
+                placeholder={address}
+                enterButton={<CopyOutlined />}
+                size="large"
+                style={styles.input}
+                onSearch={() => generateRefLink()}
+              />
+            ) : (
+              <Search
+                // placeholder={`${httpsURL}/?referral=YOUR ETH ADDRESS HERE`}
+                placeholder={`Connect Wallet to get Referral Link`}
+                enterButton={<CopyOutlined />}
+                size="large"
+                style={styles.input}
+                disabled={true}
+              />
+            )}
           </Space>
 
           <div style={styles.paragraph}>
-            <p>Earn 12% of the AVAX used to mine ruby
-            from anyone who uses your referral link</p>
+            <p>Earn 12% of the AVAX used to generate wealth from anyone who uses your referral link</p>
           </div>
         </div>
       </Card>
