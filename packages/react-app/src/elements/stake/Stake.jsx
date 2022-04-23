@@ -3,7 +3,15 @@
 import { ethers } from "ethers";
 import React, { useState, useEffect } from "react";
 // imports - custom hooks
-import { useBalance } from "eth-hooks";
+import {
+  useBalance,
+  usePoller,
+  useContractLoader,
+  useContractReader,
+  useGasPrice,
+  useOnBlock,
+  useUserProviderAndSigner,
+} from "eth-hooks";
 // imports - antd
 import {
   ThunderboltOutlined,
@@ -36,53 +44,19 @@ import { shouldBeStringOrThrow } from "./Checks";
 import WealthGen from "./WealthGen";
 // imports - styles js
 import styles from "../styles";
-
+//
 import { CONTRACT } from "../../constants";
 // imports - abi
 import ABI from "../../ABI.json";
 
-const { Step } = Steps;
+// const { Step } = Steps;
+import UserGuideSteps from "./UserGuideSteps";
 // const { ethers } = require("ethers");
 
-function UserGuideSteps(currentStep) {
-  return (
-    <div>
-      <Space>
-        <Steps current={currentStep} style={styles.steps} responsive="true">
-          <Step
-            title="Connect Wallet"
-            description="Get Started."
-            icon={currentStep === 0 ? <LoadingOutlined /> : ""}
-            style={styles.step}
-          />
-          <Step
-            title="Get Funds"
-            description="Get Loaded"
-            icon={currentStep === 1 ? <LoadingOutlined /> : ""}
-            style={styles.step}
-          />
-          <Step
-            title="Buy Generators"
-            description="Generate Gains."
-            icon={currentStep === 2 ? <LoadingOutlined /> : ""}
-            style={styles.step}
-          />
-          <Step
-            title="Reinvest"
-            description="Amplify Gains."
-            icon={currentStep === 3 ? <LoadingOutlined /> : ""}
-            style={styles.step}
-          />
-          <Step title="Earn" description="Make Bank." style={styles.step} />
-        </Steps>
-      </Space>
-    </div>
-  );
-}
-
-
 // TODO: put this somewhere global so we have "one definition" for "humanized"
+// const toHumanizedValue = raw => parseFloat(ethers.utils.formatEther(raw)).toFixed(3);
 const toHumanizedValue = raw => parseFloat(ethers.utils.formatEther(raw)).toFixed(3);
+// const toHumanizedValue = raw => parseFloat(ethers.utils.formatEther(String.valueOf(raw || 0))).toFixed(3);
 
 export default function Stake({
   useBurner,
@@ -114,16 +88,22 @@ export default function Stake({
   // Humanized amounts - they are the ones rendered on the screen
   const [amountWithinWallet, setAmountWithinWallet] = useState(0);
   const [amountWithinContract, setAmountWithinContract] = useState(0);
-  const [amountWithinDeposits, setAmountWithinDeposits] = useState(0);
+  const [amountWithinGenerators, setAmountWithinGenerators] = useState(0);
   const [amountWithinRewards, setAmountWithinRewards] = useState(0);
 
   const [amountToDeposit, setAmountToDeposit] = useState(0);
+
+  useOnBlock(mainnetProvider, async () => { // If you want to call a function on a new block
+    // console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
+    // setAmountWithinContract(toHumanizedValue(await contract.getBalance()))
+    setAmountWithinContract(await contract.getBalance())
+  });
 
   // Rewards
   const [rewardMax, setRewardsMax] = useState(0);
   const [rewardsCurrent, setRewardsCurrent] = useState(0);
   const [rewardsProgress, setRewardsProgress] = useState(0);
-  
+
   // Raw amounts
   const balanceOfRewards = ethers.BigNumber.from("0");
   const balanceOfDeposits = ethers.BigNumber.from("0");
@@ -141,25 +121,82 @@ export default function Stake({
   const [currentStep, setCurrentStep] = useState(0);
   const [status, setStatus] = useState("");
 
+  // useEffect(async () => {
+  //   const __address__ = address
+  //   if (!__address__) {
+  //     return setAmountWithinGenerators(0)
+  //   }
+
+  //   setAmountWithinGenerators(await wealthgen.amountOfGenerators(contract, address))
+  // }, [address, amountWithinWallet])
 
   useEffect(() => setAmountWithinWallet(toHumanizedValue(balanceOfWallet)), [balanceOfWallet]);
-  useEffect(() => setAmountWithinDeposits(toHumanizedValue(balanceOfDeposits)), [balanceOfDeposits]);
+  useEffect(() => setAmountWithinGenerators(toHumanizedValue(balanceOfDeposits)), [balanceOfDeposits]);
   // useEffect(() => setAmountToDeposit(amountToDeposit), [amountToDeposit]);
 
   //this useEffect should calculate the rewards by multiplaying with 1.02
-  useEffect(() => setAmountWithinRewards(amountWithinDeposits * 1.02), [amountWithinDeposits]);
+  useEffect(() => setAmountWithinRewards(amountWithinGenerators * 1.02), [amountWithinGenerators]);
   useEffect(() => setRewardsProgress(amountWithinRewards / rewardMax), [amountWithinRewards]);  //---> its not amountWithinRewards its contract.getRewards or something
 
-  // useEffect(()=>{
-  //   setAmountWithinContract(contract.getBalance());                //----------> some errors something idk ask michael about this web3 bullshit
-  // }, [contract.getBalance()])
+  // TODO: We want to sync/update some stats every 10 seconds.
+  
+  // useEffect(() => {
+  //     const id = setInterval(() => {
+  //       let balance = await contract.getBalance()
+  //       setAmountWithinContract(balance.toString())    
+  // }, 10000)}, [])
+  
+  // export default function useGasPrice(targetNetwork, speed) {
+  //   const [gasPrice, setGasPrice] = useState();
+  //   const loadGasPrice = async () => {
+  //     if (targetNetwork.hasOwnProperty("gasPrice")) {
+  //       setGasPrice(targetNetwork.gasPrice);
+  //     } else {
+  //         axios
+  //           .get("https://ethgasstation.info/json/ethgasAPI.json")
+  //           .then(response => {
+  //             const newGasPrice = response.data[speed || "fast"] * 100000000;
+  //             if (newGasPrice !== gasPrice) {
+  //               setGasPrice(newGasPrice);
+  //             }
+  //           })
+  //           .catch(error => console.log(error));
+  //     }
+  //   };
+  
+  //   usePoller(loadGasPrice, 39999);
+  //   return gasPrice;
+  // }
+  
+
+  // usePoller(async () => {
+  //   if (props.provider && typeof props.provider.getNetwork === "function") {
+  //     try {
+  //       const newNetwork = await props.provider.getNetwork();
+  //       setNetwork(newNetwork);
+  //       if (newNetwork.chainId > 0) {
+  //         setStatus("success");
+  //       } else {
+  //         setStatus("warning");
+  //       }
+  //     } catch (e) {
+  //       console.log(e);
+  //       setStatus("processing");
+  //     }
+  //     try {
+  //       const newSigner = await props.provider.getSigner();
+  //       setSigner(newSigner);
+  //       const newAddress = await newSigner.getAddress();
+  //       setAddress(newAddress);
+  //       // eslint-disable-next-line no-empty
+  //     } catch (e) {}
+  //   }
+  // }, 1377);
 
   // useEffect(() => {
   //   // WARNING: how does this interact with the idea of "Contractinator"
   //   setContract(contract.connect(userSigner));
   // }, [userSigner]);
-
-
 
   // Tell user what the next expected action is.
   useEffect(() => {
@@ -180,8 +217,8 @@ export default function Stake({
     }
   }, [address, balanceOfWallet, balanceOfDeposits]);
 
-  // maxRewards = amountWithinDeposits * 0.02;
-  // progress = amountWithinDeposits / maxRewards;
+  // maxRewards = amountWithinGenerators * 0.02;
+  // progress = amountWithinGenerators / maxRewards;
   //-> but i guess this should be contract.getMyMiners or .getRubiesSinceLastHarvest
 
   function handleMenuClick(e) {
@@ -195,7 +232,7 @@ export default function Stake({
   }
 
   // prevent invalid input
-  
+
   function handleHireClick() {
     debugger
     wealthgen.buy({
@@ -229,6 +266,8 @@ export default function Stake({
     </Menu>
   );
 
+    // TODO create minimum ammount for deposit and check if user is trying to deposit more than he has in the wallet
+
   return (
     <>
       <UserGuideSteps currentStep={currentStep} />
@@ -239,7 +278,7 @@ export default function Stake({
             <Row gutter={16} style={{ marginTop: -15 }}>
               <Col span={12}>
                 {/* TODO: make "Contract" a href to the etherscan url  */}
-                <Statistic title="Contract Balance" value={amountWithinContract} />
+                <Statistic title="Contract Balance" value={`${amountWithinContract} ${nativeCurrency}`} />
               </Col>
               <Col span={12}>
                 {/* TODO: make "Wallet" a href to their etherscan url  */}
@@ -262,7 +301,7 @@ export default function Stake({
               <Space direction="vertical">
                 <Statistic
                   title="Your Generators"
-                  value={amountWithinDeposits}
+                  value={amountWithinGenerators}
                   prefix={<ThunderboltOutlined />}
                   style={styles.layout}
                 />
@@ -275,7 +314,7 @@ export default function Stake({
                     placeholder={`amount of ${nativeCurrency}`}
                     size="large"
                     precision="4"
-                    stringMode           
+                    stringMode
                     value={amountToDeposit}
                     onChange={setAmountToDeposit}
                   />

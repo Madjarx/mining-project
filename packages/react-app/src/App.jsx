@@ -62,7 +62,7 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet) //-------------------------------------------------ATTENTION
+const initialNetwork = NETWORKS.mainnetAvalanche; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet) //-------------------------------------------------ATTENTION
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -127,8 +127,7 @@ function App(props) {
   useEffect(() => {
     async function getAddress() {
       if (userSigner) {
-        const newAddress = await userSigner.getAddress();
-        setAddress(newAddress);
+        setAddress(await userSigner.getAddress());
       }
     }
     getAddress();
@@ -151,7 +150,6 @@ function App(props) {
   const yourMainnetBalance = useBalance(mainnetProvider, address);
 
   // const contractConfig = useContractConfig();
-
   const contractConfig = { deployedContracts: deployedContracts || {}, externalContracts: externalContracts || {} };
 
   // Load in your local 📝 contract and read a value from it:

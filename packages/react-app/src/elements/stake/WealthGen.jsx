@@ -1,6 +1,8 @@
 import { CONTRACT } from "../../constants";
 // imports - abi
 import ABI from "../../ABI.json";
+// import ABI from "../contracts/ABI/ROI.json";
+// import ABI from "../../../contracts/ABI/ROI.json";
 // imports - ethers
 import { ethers } from "ethers";
 
@@ -53,8 +55,8 @@ export default class WealthGen {
   }
 
   // amount of generators available
-  async amountOfGenerators(contract, address) {
-    return contract.getMyMiners(address);
+  async amountOfGenerators({contract, address}) {
+    return contract.getMyRubies(address);
   }
 
   // amount Of Redeemables

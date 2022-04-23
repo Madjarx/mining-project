@@ -784,10 +784,25 @@ const DAIABI = [
   },
 ];
 
+const CHAIN_ID__MAINNET = 1;
+const CHAIN_ID__RINKEBY = 4;
+
 // Mainnet DAI, Optimism and Arbitrium Rollup Contracts with local addresses
 module.exports = {
-  1: {
+  [CHAIN_ID__RINKEBY]: {
     contracts: {
+      ROI: {
+        address: "0x33b651376918f0d341947b36D02472E19b7e3243",
+        // abi: require("./ABI/ROI.json"), // imports - abi
+        // abi: require('../../library/rubymine/ABI.json'),
+      }
+    },
+  },
+  [CHAIN_ID__MAINNET]: {
+    contracts: {
+      ROI: {
+        address: "0x31A226acD218fe1FD2E6b26767E670e868b6E65f",
+      },
       DAI: {
         address: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
         abi: DAIABI,

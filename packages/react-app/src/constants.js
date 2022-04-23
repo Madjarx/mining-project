@@ -145,6 +145,7 @@ export const NETWORKS = {
     blockExplorer: "https://cchain.explorer.avax.network/",
     rpcUrl: `https://api.avax.network/ext/bc/C/rpc`,
     gasPrice: 225000000000,
+    nativeCurrency: "AVAX"
   },
   testnetHarmony: {
     name: "testnetHarmony",
