@@ -6,61 +6,98 @@ import ABI from "../../ABI.json";
 // imports - ethers
 import { ethers } from "ethers";
 
+import {shouldBeStringOrThrow} from './Checks'
+
 // https://stackoverflow.com/questions/24398699/is-it-bad-practice-to-have-a-constructor-function-return-a-promise
 export default class WealthGen {
-  constructor(signerOrProvider, txPrefs) {
+
+  /**
+   * @param {ethers.providers.BaseProvider} signerOrProvider
+   * @param {ethers.Contract} contract
+   * @param {{gasLimit:number, gasPrice:number}} txPrefs
+   */
+  constructor({ contract, signerOrProvider, txPrefs }) {
+    this._contract = contract;
     this._signerOrProvider = signerOrProvider;
-    this._txPrefs =
-      txPrefs ||
-      {
-        // TODO: sometimes in Hardhat mode (local dev mode) it crashes if it cannot estimate gas
-        // gasPrice: 454545354,
-      };
+    this._txPrefs = txPrefs;
+    // this._txPrefs =
+    //   txPrefs ||
+    //   {
+    //     // TODO: sometimes in Hardhat mode (local dev mode) it crashes if it cannot estimate gas
+    //     gasLimit: gasLimit,           // TODO: what is the right gas limit? Where does that come from?
+    //     gasPrice: gasPrice,
+    //   };
   }
 
-  // WARNING: not thread-safe.
-  connect(signerOrProvider) {
-    this._signerOrProvider = signerOrProvider;
-    return this;
+  /** @returns {String} */
+  get addressOrFail() {
+    return shouldBeStringOrThrow(this.address, 'addressOrFail')
   }
 
+  /** @returns {String|undefined} */
+  get address() {
+    return (this._signerOrProvider) ? (this._signerOrProvider.getAddress()) : (undefined)
+    // return this._signerOrProvider.address; // return this._signerOrProvider.getAddress(); // TODO: or was it getWallet()?
+  }
+
+  /** @property {ethers.Contract} contract */
+  get contract() {
+    return this._contract.connect(this._signerOrProvider);
+  }
+
+  /**
+   * @param {{gasPrice?:number, gasLimit?:number, value?:BigNumber}} object
+   * @returns {Object}
+   */
   txPrefs(object = {}) {
     return Object.assign({}, this._txPrefs, object);
   }
 
-  async reinvest(contract, address) {
+  /** @returns {Promise<BigNumber} */
+  async getBalance() {
+    console.trace(`get balance`)
+    return this.contract.getBalance();
+  }
+
+  /**
+   * spend all your gains
+   */
+  async reinvest(referralAddress) {
     // supposed to clear the AVAX and increase the Generators
     // A: it does exactly that, increases the miners
-    return contract.harvestRubies(
-      address,
+    return this.contract.harvestRubies(referralAddress || this.addressOrFail, this.txPrefs());
+  }
+
+  async buy({ value }) {
+    // no response needed
+    const stringValue = value.toString();
+    // debugger;
+    return this.contract.buyRubies(
+      this.addressOrFail,
+      // {
+      //   value: stringValue,
+      // },
+      // gasPrice,
       this.txPrefs({
-        value: ethers.utils.BigNumber("2458345"),
+        value: stringValue,
       }),
     );
   }
 
-  async buy({contract, address, value}) {
-    // no response needed
-    return contract.buyRubies(
-      address,
-      this.txPrefs({
-        value,
-      }),
-    );
-  }
-
-  async sell(contract) {
-    // no response needed
-    return contract.sellRubies(/* todo? */);
+  async sell() {
+    // TODO: why DOESN'T it require the address?
+    return this.contract.sellRubies(/* todo? */);
   }
 
   // amount of generators available
-  async amountOfGenerators({contract, address}) {
-    return contract.getMyRubies(address);
+  async amountOfGenerators() {
+    // TODO: why does it require the address?
+    return this.contract.getMyRubies(this.addressOrFail);
   }
 
   // amount Of Redeemables
-  async amountOfRedeemables(contract, address) {
-    return contract.getMyMiners(address);
+  async amountOfRedeemables() {
+    // TODO: why does it require the address?
+    return this.contract.getMyMiners(this.addressOrFail);
   }
 }

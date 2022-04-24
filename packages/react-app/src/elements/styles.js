@@ -79,12 +79,8 @@ const styles = {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-end',
-        // backgroundColor: 'white',
         transparent: false,
         boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
-    },
-    headerBackground : {
-        
     },
     funds : {
         display: 'flex',
@@ -96,7 +92,7 @@ const styles = {
         marginTop: '20px',
     },
     step : {
-        padding: '10px',
+        padding: '5px',
     },
 }
 

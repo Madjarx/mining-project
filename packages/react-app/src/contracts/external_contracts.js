@@ -786,9 +786,17 @@ const DAIABI = [
 
 const CHAIN_ID__MAINNET = 1;
 const CHAIN_ID__RINKEBY = 4;
+const CHAIN_ID__AVAX= 443114;
 
 // Mainnet DAI, Optimism and Arbitrium Rollup Contracts with local addresses
 module.exports = {
+  [CHAIN_ID__AVAX]: {
+    contracts: {
+      ROI: {
+        address: '0x31A226acD218fe1FD2E6b26767E670e868b6E65f',
+      },
+    },
+  },
   [CHAIN_ID__RINKEBY]: {
     contracts: {
       ROI: {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {
   Space,
   Steps,
@@ -11,12 +11,13 @@ import {
   AudioOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
-
+import { ethers } from "ethers";
 import styles from '../styles';
 
 const { Step } = Steps;
 
-export default function UserGuideSteps(currentStep) {
+export default function UserGuideSteps (currentStep) {
+
   return (
     <div>
       <Space>

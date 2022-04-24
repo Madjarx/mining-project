@@ -1,4 +1,4 @@
 export function shouldBeStringOrThrow(string) {
-  if (!string) throw "must be string";
+  if (!string) throw `shouldBeStringOrThrow -> must be string -> was: ${string}`;
   return string;
 }

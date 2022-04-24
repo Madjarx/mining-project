@@ -1,4 +1,3 @@
-
 // imports - react
 import { ethers } from "ethers";
 import React, { useState, useEffect } from "react";
@@ -38,6 +37,7 @@ import {
   Steps,
   Modal,
 } from "antd";
+import { Transactor, Web3ModalSetup } from "../../helpers/index";
 // our stuff starts here
 import { shouldBeStringOrThrow } from "./Checks";
 // import - CONTRACT
@@ -51,6 +51,7 @@ import ABI from "../../ABI.json";
 
 // const { Step } = Steps;
 import UserGuideSteps from "./UserGuideSteps";
+const { Step } = Steps;
 // const { ethers } = require("ethers");
 
 // TODO: put this somewhere global so we have "one definition" for "humanized"
@@ -72,18 +73,36 @@ export default function Stake({
   blockExplorer,
   isContract,
   targetNetwork,
+  gasPrice,
 }) {
   // TODO: create a useEffect that will automatically change the native currency. Problem?: nativecurrency prolly wont change because its not bound to targetnetwork but rather initialized only once
-  const nativeCurrency = shouldBeStringOrThrow(targetNetwork.nativeCurrency);   // ------> giving off shit ton of errors
+  const nativeCurrency = shouldBeStringOrThrow(targetNetwork.nativeCurrency); // ------> giving off shit ton of errors
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  const [signerOrProvider, setSignerOrProvider] = useState(userSigner || localProvider)
-  const [wealthgen, setWealthGen] = useState(new WealthGen());
+  const [signerOrProvider, setSignerOrProvider] = useState(userSigner || localProvider);
+  const [wealthgen, setWealthGen] = useState(new WealthGen({
+    contract: new ethers.Contract(CONTRACT, ABI, signerOrProvider),
+    signerOrProvider,
+    txPrefs: {
+      gasPrice,
+      gasLimit: 10,
+    },    
+  }));
 
   useEffect(() => setSignerOrProvider(userSigner || localProvider), [userSigner, localProvider]);
 
-  const [contract, setContract] = useState(new ethers.Contract(CONTRACT, ABI, userSigner));
-  useEffect(() => setContract(contract.connect(signerOrProvider)), [signerOrProvider])
+  useEffect(() => {
+    setWealthGen(
+      new WealthGen({
+        contract: new ethers.Contract(CONTRACT, ABI, signerOrProvider),
+        signerOrProvider,
+        txPrefs: {
+          gasPrice,
+          gasLimit: 100000,       // <---- TODO: figure out a better way
+        },
+      }),
+    );
+  }, [CONTRACT, ABI, signerOrProvider, gasPrice]);
 
   // Humanized amounts - they are the ones rendered on the screen
   const [amountWithinWallet, setAmountWithinWallet] = useState(0);
@@ -93,11 +112,16 @@ export default function Stake({
 
   const [amountToDeposit, setAmountToDeposit] = useState(0);
 
-  useOnBlock(mainnetProvider, async () => { // If you want to call a function on a new block
+  useOnBlock(mainnetProvider, async () => {
+    // If you want to call a function on a new block
     // console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
     // setAmountWithinContract(toHumanizedValue(await contract.getBalance()))
-    setAmountWithinContract(await contract.getBalance())
+    setAmountWithinContract(await wealthgen.getBalance());
   });
+
+  // useEffect(async () => 
+  //   setAmountWithinRewards(await wealthgen.rubyRewards(address)
+  // ), [amountWithinRewards]);
 
   // Rewards
   const [rewardMax, setRewardsMax] = useState(0);
@@ -124,10 +148,10 @@ export default function Stake({
   // useEffect(async () => {
   //   const __address__ = address
   //   if (!__address__) {
-  //     return setAmountWithinGenerators(0)
+  //     setAmountWithinGenerators(0)
+  //   } else {
+  //     setAmountWithinGenerators(await wealthgen.amountOfGenerators(contract, address))
   //   }
-
-  //   setAmountWithinGenerators(await wealthgen.amountOfGenerators(contract, address))
   // }, [address, amountWithinWallet])
 
   useEffect(() => setAmountWithinWallet(toHumanizedValue(balanceOfWallet)), [balanceOfWallet]);
@@ -136,16 +160,16 @@ export default function Stake({
 
   //this useEffect should calculate the rewards by multiplaying with 1.02
   useEffect(() => setAmountWithinRewards(amountWithinGenerators * 1.02), [amountWithinGenerators]);
-  useEffect(() => setRewardsProgress(amountWithinRewards / rewardMax), [amountWithinRewards]);  //---> its not amountWithinRewards its contract.getRewards or something
+  useEffect(() => setRewardsProgress(amountWithinRewards / rewardMax), [amountWithinRewards]); //---> its not amountWithinRewards its contract.getRewards or something
 
   // TODO: We want to sync/update some stats every 10 seconds.
-  
+
   // useEffect(() => {
   //     const id = setInterval(() => {
   //       let balance = await contract.getBalance()
-  //       setAmountWithinContract(balance.toString())    
+  //       setAmountWithinContract(balance.toString())
   // }, 10000)}, [])
-  
+
   // export default function useGasPrice(targetNetwork, speed) {
   //   const [gasPrice, setGasPrice] = useState();
   //   const loadGasPrice = async () => {
@@ -163,11 +187,10 @@ export default function Stake({
   //           .catch(error => console.log(error));
   //     }
   //   };
-  
+
   //   usePoller(loadGasPrice, 39999);
   //   return gasPrice;
   // }
-  
 
   // usePoller(async () => {
   //   if (props.provider && typeof props.provider.getNetwork === "function") {
@@ -225,20 +248,21 @@ export default function Stake({
     console.log("click", e);
   }
 
-  function handleReinvestClicked(address) {
-    wealthgen.reinvest(wealthgen, address);
+  async function handleReinvestClicked(address) {
+    // TODO: show a progress bar
+    
+    // The transactor wraps transactions and provides notificiations
+    // const tx = Transactor(userSigner, gasPrice);
+
+    wealthgen.reinvest();
     // setAmountWithinDeposits
     // setAmountWithinWallet --> or this is handled by useEffect I think
   }
 
   // prevent invalid input
 
-  function handleHireClick() {
-    debugger
+  async function handleHireClick() {
     wealthgen.buy({
-      contract,
-      address,
-      // gasPrice: 0,   ----------------> Do we need gas price?
       value: ethers.utils.parseEther(amountToDeposit),
     });
     // setAmountWithinDeposits
@@ -249,6 +273,7 @@ export default function Stake({
   const handleModalAccept = () => setIsModalVisible(false);
   const handleModalCancel = () => setIsModalVisible(false);
   const handleRechargeClick = () => window.open(`https://www.sushi.com/`);
+  const handleContractClick = () => window.open(`${blockExplorer}/address/${CONTRACT}`);
 
   const reharvestDropdownMenu = (
     <Menu onClick={handleMenuClick}>
@@ -266,11 +291,42 @@ export default function Stake({
     </Menu>
   );
 
-    // TODO create minimum ammount for deposit and check if user is trying to deposit more than he has in the wallet
+  // TODO create minimum ammount for deposit and check if user is trying to deposit more than he has in the wallet
 
   return (
     <>
-      <UserGuideSteps currentStep={currentStep} />
+      {/* <UserGuideSteps address={address} balanceOfWallet={balanceOfWallet} balanceOfDeposits={balanceOfDeposits} /> */}
+
+      <Space>
+        {/* size="small" */}
+        <Steps current={currentStep} style={styles.steps} responsive="true">
+          <Step
+            title="Connect Wallet"
+            description="Get Started."
+            icon={currentStep === 0 ? <LoadingOutlined /> : ""}
+            style={styles.step}
+          />
+          <Step
+            title="Get Funds"
+            description="Get Loaded"
+            icon={currentStep === 1 ? <LoadingOutlined /> : ""}
+            style={styles.step}
+          />
+          <Step
+            title="Buy Generators"
+            description="Generate Gains."
+            icon={currentStep === 2 ? <LoadingOutlined /> : ""}
+            style={styles.step}
+          />
+          <Step
+            title="Reinvest"
+            description="Amplify Gains."
+            icon={currentStep === 3 ? <LoadingOutlined /> : ""}
+            style={styles.step}
+          />
+          <Step title="Earn" description="Make Bank." style={styles.step} />
+        </Steps>
+      </Space>
 
       <div style={styles.box}>
         <Card title="Fortuna Wealth Generator" bordered={false}>
@@ -278,7 +334,12 @@ export default function Stake({
             <Row gutter={16} style={{ marginTop: -15 }}>
               <Col span={12}>
                 {/* TODO: make "Contract" a href to the etherscan url  */}
-                <Statistic title="Contract Balance" value={`${amountWithinContract} ${nativeCurrency}`} />
+                <Statistic
+                  title="Contract Balance"
+                  value={`${toHumanizedValue(amountWithinContract)} ${nativeCurrency}`}
+                  precision={2}
+                  style={{ cursor: "pointer" }}
+                />
               </Col>
               <Col span={12}>
                 {/* TODO: make "Wallet" a href to their etherscan url  */}
@@ -310,7 +371,7 @@ export default function Stake({
                     style={{
                       width: "100%",
                     }}
-                    step="0.000001"
+                    step="0.0001"
                     placeholder={`amount of ${nativeCurrency}`}
                     size="large"
                     precision="4"
@@ -365,7 +426,13 @@ export default function Stake({
       </div>
 
       {/* Withdraw Modal */}
-      <Modal title="Basic Modal" visible={isModalVisible} onOk={handleModalAccept} onCancel={handleModalCancel} size="small">
+      <Modal
+        title="Basic Modal"
+        visible={isModalVisible}
+        onOk={handleModalAccept}
+        onCancel={handleModalCancel}
+        size="small"
+      >
         <p>Are you sure you want to withdraw?</p>
       </Modal>
     </>
