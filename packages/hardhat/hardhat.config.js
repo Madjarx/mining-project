@@ -66,10 +66,11 @@ module.exports = {
         notice no mnemonic here? it will just use account 0 of the hardhat node to deploy
         (you can put in a mnemonic here to set the deployer locally)
       */
-      initialBaseFeePerGas: 10,
-      baseFeePerGas: 10,
-      gasLimit: 1000000000,
-      gasPrice: 1000000000,
+     
+      // initialBaseFeePerGas: 10,
+      // baseFeePerGas: 10,
+      // gasLimit: 1000000000,
+      // gasPrice: 1000000000,
     },
 
 
