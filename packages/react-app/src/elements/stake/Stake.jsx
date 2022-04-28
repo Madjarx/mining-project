@@ -10,6 +10,7 @@ import {
   useGasPrice,
   useOnBlock,
   useUserProviderAndSigner,
+
 } from "eth-hooks";
 // imports - antd
 import {
@@ -48,11 +49,8 @@ import styles from "../styles";
 import { CONTRACT } from "../../constants";
 // imports - abi
 import ABI from "../../ABI.json";
-
-// const { Step } = Steps;
 import UserGuideSteps from "./UserGuideSteps";
 const { Step } = Steps;
-// const { ethers } = require("ethers");
 
 // TODO: put this somewhere global so we have "one definition" for "humanized"
 // const toHumanizedValue = raw => parseFloat(ethers.utils.formatEther(raw)).toFixed(3);
@@ -112,7 +110,7 @@ export default function Stake({
 
   const [amountToDeposit, setAmountToDeposit] = useState(0);
 
-  useOnBlock(mainnetProvider, async () => {
+  useOnBlock(localProvider, async () => {
     // If you want to call a function on a new block
     // console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`);
     // setAmountWithinContract(toHumanizedValue(await contract.getBalance()))
@@ -133,12 +131,8 @@ export default function Stake({
   const balanceOfDeposits = ethers.BigNumber.from("0");
   const balanceOfWallet = useBalance(localProvider, address);
 
-  ///TODODODODODO - TODO: LUKA - Where does go? Is there a better name?
   const [currentBalance, setCurrentBalance] = useState(0);
 
-  // const [prefill, setPrefill] = useState(0);
-  // const [inputValue, setInpuValue] = useState(0);
-  // const [focus, setFocus] = useState(false);
   // TODO: when you type a # and click "Hire" it should just add that much to rewards (but not do an actual tx)
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -158,11 +152,9 @@ export default function Stake({
   useEffect(() => setAmountWithinGenerators(toHumanizedValue(balanceOfDeposits)), [balanceOfDeposits]);
   // useEffect(() => setAmountToDeposit(amountToDeposit), [amountToDeposit]);
 
-  //this useEffect should calculate the rewards by multiplaying with 1.02
   useEffect(() => setAmountWithinRewards(amountWithinGenerators * 1.02), [amountWithinGenerators]);
   useEffect(() => setRewardsProgress(amountWithinRewards / rewardMax), [amountWithinRewards]); //---> its not amountWithinRewards its contract.getRewards or something
 
-  // TODO: We want to sync/update some stats every 10 seconds.
 
   // useEffect(() => {
   //     const id = setInterval(() => {
@@ -262,18 +254,33 @@ export default function Stake({
   // prevent invalid input
 
   async function handleHireClick() {
-    wealthgen.buy({
-      value: ethers.utils.parseEther(amountToDeposit),
-    });
+    if (amountToDeposit > amountWithinWallet || amountToDeposit === 0) {
+      console.log("You have insufficient Funds")
+      setStatus("error")
+    } else {
+      console.log("Sure, buy, do with your money whatever you want")
+      setStatus("")
+      // wealthgen.buy({
+      //   value: ethers.utils.parseEther(amountToDeposit),
+      // });
+    }
+    
     // setAmountWithinDeposits
     // setAmountWithinWallet --> or this is handled by useEffect I think
   }
+
+  // contract stuff
+
+  // const contractConfig = useContractConfig();
+  // const readContracts = useContractLoader(localProvider, contractConfig);
+  // const purpose = useContractReader(readContracts, "YourContract", "purpose");
 
   const showModal = () => setIsModalVisible(true);
   const handleModalAccept = () => setIsModalVisible(false);
   const handleModalCancel = () => setIsModalVisible(false);
   const handleRechargeClick = () => window.open(`https://www.sushi.com/`);
-  const handleContractClick = () => window.open(`${blockExplorer}/address/${CONTRACT}`);
+  // const handleContractClick = () => window.open(`${blockExplorer}/address/${CONTRACT}`);
+
 
   const reharvestDropdownMenu = (
     <Menu onClick={handleMenuClick}>
@@ -290,6 +297,12 @@ export default function Stake({
       </Menu.Item>
     </Menu>
   );
+
+  // const balanceOfContract = async () => {
+  //   await localProvider.getBalance('0x31A226acD218fe1FD2E6b26767E670e868b6E65f');
+  // }
+  const balanceOfContract = useBalance(localProvider, '0x31A226acD218fe1FD2E6b26767E670e868b6E65f'); // -> ruby
+  // const balanceOfContract = useBalance(localProvider, '0x33b651376918f0d341947b36D02472E19b7e3243'); // -> ours
 
   // TODO create minimum ammount for deposit and check if user is trying to deposit more than he has in the wallet
 
@@ -336,7 +349,8 @@ export default function Stake({
                 {/* TODO: make "Contract" a href to the etherscan url  */}
                 <Statistic
                   title="Contract Balance"
-                  value={`${toHumanizedValue(amountWithinContract)} ${nativeCurrency}`}
+                  // value={`${toHumanizedValue(amountWithinContract)} ${nativeCurrency}`}
+                  value={`${toHumanizedValue(balanceOfContract)} ${nativeCurrency}`}
                   precision={2}
                   style={{ cursor: "pointer" }}
                 />
@@ -356,8 +370,9 @@ export default function Stake({
                 )}
               </Col>
             </Row>
-            <Divider orientation="left">Your Generators</Divider>
 
+            <Divider orientation="left">Your Generators</Divider>
+            
             <div style={styles.group}>
               <Space direction="vertical">
                 <Statistic
@@ -378,6 +393,7 @@ export default function Stake({
                     stringMode
                     value={amountToDeposit}
                     onChange={setAmountToDeposit}
+                    status={status}
                   />
                   <Button
                     type="primary"
@@ -411,6 +427,7 @@ export default function Stake({
                     trigger={"click"}
                     overlay={reharvestDropdownMenu}
                     onClick={() => handleReinvestClicked()}
+                    disabled={amountWithinRewards === 0? (true) : (false)}
                   >
                     {/* contract.harvestRubies(address)   */}
                     <DownloadOutlined />

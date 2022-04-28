@@ -326,7 +326,7 @@ function App(props) {
         blockExplorer={blockExplorer}
         targetNetwork={targetNetwork}
       />
-      {/* <Links /> */}
+      <Links />
       <ThemeSwitch />
       </div>
     </div>

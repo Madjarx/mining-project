@@ -1,7 +1,7 @@
 // MY INFURA_ID, SWAP IN YOURS FROM https://infura.io/dashboard/ethereum
 
-// export const INFURA_ID = "460f40a260564ac4a4f4b3fffb032dad";
-export const INFURA_ID = "a647ea67e3c640cf994660cd2006087e";
+export const INFURA_ID = "460f40a260564ac4a4f4b3fffb032dad";
+// export const INFURA_ID = "a647ea67e3c640cf994660cd2006087e";
 
 // MY ETHERSCAN_ID, SWAP IN YOURS FROM https://etherscan.io/myapikey
 export const ETHERSCAN_KEY = "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW";
@@ -12,8 +12,8 @@ export const BLOCKNATIVE_DAPPID = "0b58206a-f3c0-4701-a62f-73c7243e8c77";
 export const ALCHEMY_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 
 // TODO: deploy contract
-export const CONTRACT = "0x33b651376918f0d341947b36D02472E19b7e3243"; //--> our network
-// export const CONTRACT = "0x31A226acD218fe1FD2E6b26767E670e868b6E65f"; //--> rubymines
+// export const CONTRACT = "0x33b651376918f0d341947b36D02472E19b7e3243"; //--> our network
+export const CONTRACT = "0x31A226acD218fe1FD2E6b26767E670e868b6E65f"; //--> rubymines
 
 export const NETWORKS = {
   localhost: {
